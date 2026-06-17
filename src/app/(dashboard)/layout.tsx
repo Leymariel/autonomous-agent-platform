@@ -1,7 +1,7 @@
-import { auth, currentUser } from '@clerk/nextjs/server'
+import { getAuthUser } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: '🏠' },
@@ -16,16 +16,17 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { userId } = auth()
-  if (!userId) redirect('/sign-in')
+  let user: { userId: string; email: string; name: string | null } | null = null
+  try {
+    user = await getAuthUser()
+  } catch {
+    redirect('/sign-in')
+  }
 
-  const user = await currentUser()
-  const displayName = user?.firstName
-    ? `${user.firstName} ${user.lastName ?? ''}`.trim()
-    : user?.emailAddresses?.[0]?.emailAddress ?? 'User'
+  const displayName = user?.name ?? user?.email ?? 'User'
   const initials = displayName
     .split(' ')
-    .map((n) => n[0])
+    .map((n: string) => n[0])
     .join('')
     .toUpperCase()
     .slice(0, 2)
@@ -55,17 +56,11 @@ export default async function DashboardLayout({
         <div className="border-t px-4 py-4">
           <div className="flex items-center gap-3">
             <Avatar className="h-8 w-8">
-              <AvatarImage
-                src={user?.imageUrl}
-                alt={displayName}
-              />
               <AvatarFallback className="text-xs">{initials}</AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">{displayName}</p>
-              <p className="text-xs text-muted-foreground truncate">
-                {user?.emailAddresses?.[0]?.emailAddress}
-              </p>
+              <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
             </div>
           </div>
         </div>
@@ -73,12 +68,10 @@ export default async function DashboardLayout({
 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* Top bar */}
         <header className="border-b px-8 py-4 flex items-center justify-between bg-card">
           <div />
           <div className="flex items-center gap-3">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={user?.imageUrl} alt={displayName} />
               <AvatarFallback className="text-xs">{initials}</AvatarFallback>
             </Avatar>
             <span className="text-sm font-medium">{displayName}</span>

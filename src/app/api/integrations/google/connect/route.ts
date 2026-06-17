@@ -1,21 +1,23 @@
 export const runtime = 'edge'
-import { NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { NextResponse, NextRequest } from 'next/server'
+import { getAuthUser } from '@/lib/auth'
 
 const GMAIL_SCOPES = [
   'https://www.googleapis.com/auth/gmail.readonly',
   'https://www.googleapis.com/auth/gmail.send',
-  'https://www.googleapis.com/auth/gmail.labels',
+  'https://www.googleapis.com/auth/gmail.modify',
 ]
 
 const CALENDAR_SCOPES = [
-  'https://www.googleapis.com/auth/calendar',
+  'https://www.googleapis.com/auth/calendar.readonly',
   'https://www.googleapis.com/auth/calendar.events',
 ]
 
-export async function GET(req: Request) {
-  const { userId } = auth()
-  if (!userId) {
+export async function GET(req: NextRequest) {
+  let authUser: { userId: string }
+  try {
+    authUser = await getAuthUser()
+  } catch {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -23,13 +25,10 @@ export async function GET(req: Request) {
   const scope = searchParams.get('scope') ?? 'gmail'
 
   const clientId = process.env.GOOGLE_CLIENT_ID
-  const redirectUri = process.env.GOOGLE_REDIRECT_URI
+  const redirectUri = process.env.GOOGLE_REDIRECT_URI ?? `${process.env.NEXT_PUBLIC_APP_URL}/api/integrations/google/callback`
 
   if (!clientId || !redirectUri) {
-    return NextResponse.json(
-      { error: 'Google OAuth not configured' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Google OAuth not configured' }, { status: 500 })
   }
 
   const scopes = scope === 'calendar' ? CALENDAR_SCOPES : GMAIL_SCOPES
@@ -41,10 +40,8 @@ export async function GET(req: Request) {
     scope: scopes.join(' '),
     access_type: 'offline',
     prompt: 'consent',
-    state: JSON.stringify({ scope, clerkId: userId }),
+    state: JSON.stringify({ scope, userId: authUser.userId }),
   })
 
-  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`
-
-  return NextResponse.redirect(authUrl)
+  return NextResponse.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`)
 }

@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+import { getAuthUser } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { eq } from 'drizzle-orm'
 import { db } from '@/lib/db'
@@ -38,13 +38,13 @@ const policyVariant: Record<
 }
 
 export default async function ActionCenterPage() {
-  const { userId: clerkId } = auth()
-  if (!clerkId) redirect('/sign-in')
+  let authUser: { userId: string; email: string; name: string | null }
+  try { authUser = await getAuthUser() } catch { redirect('/sign-in') }
 
   const userRows = await db
     .select()
     .from(users)
-    .where(eq(users.clerkId, clerkId))
+    .where(eq(users.id, authUser!.userId))
     .limit(1)
 
   if (userRows.length === 0) {

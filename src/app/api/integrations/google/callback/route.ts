@@ -1,6 +1,6 @@
 export const runtime = 'edge'
 import { NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+import { getAuthUser } from '@/lib/auth'
 import { eq } from 'drizzle-orm'
 import { createCipheriv, createDecipheriv, randomBytes } from 'crypto'
 import { db } from '@/lib/db'
@@ -41,11 +41,6 @@ interface TokenResponse {
 }
 
 export async function GET(req: Request) {
-  const { userId: clerkId } = auth()
-  if (!clerkId) {
-    return NextResponse.redirect(new URL('/sign-in', req.url))
-  }
-
   const { searchParams } = new URL(req.url)
   const code = searchParams.get('code')
   const stateParam = searchParams.get('state')
@@ -59,7 +54,7 @@ export async function GET(req: Request) {
     return NextResponse.redirect(new URL('/dashboard?error=oauth_invalid', req.url))
   }
 
-  let state: { scope: string; clerkId: string }
+  let state: { scope: string; userId: string }
   try {
     state = JSON.parse(stateParam)
   } catch {
@@ -103,7 +98,7 @@ export async function GET(req: Request) {
   const userRows = await db
     .select()
     .from(users)
-    .where(eq(users.clerkId, state.clerkId))
+    .where(eq(users.id, state.userId))
     .limit(1)
 
   if (userRows.length === 0) {
