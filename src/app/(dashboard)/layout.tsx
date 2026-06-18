@@ -1,13 +1,13 @@
 /**
  * Dashboard layout — AgentOS
- * ElevenLabs-style: near-black sidebar (#0a0a0a), gradient logo mark,
- * violet left-border active state, subtle hover bg, user footer.
+ * ReactBits-enhanced: near-black sidebar, violet glow logo, active nav client component.
  */
 
 import { getAuthUser } from '@/lib/auth'
 import { redirect }    from 'next/navigation'
 import Link            from 'next/link'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { NavItem }     from '@/components/dashboard/nav-item'
 import {
   LayoutDashboard,
   Bot,
@@ -18,18 +18,14 @@ import {
 } from 'lucide-react'
 
 const navItems = [
-  { href: '/dashboard',     label: 'Dashboard',    icon: LayoutDashboard },
-  { href: '/agents',        label: 'My Agent',     icon: Bot },
-  { href: '/marketplace',   label: 'Marketplace',  icon: Store },
+  { href: '/dashboard',     label: 'Dashboard',     icon: LayoutDashboard },
+  { href: '/agents',        label: 'My Agent',      icon: Bot },
+  { href: '/marketplace',   label: 'Marketplace',   icon: Store },
   { href: '/action-center', label: 'Action Center', icon: Zap },
-  { href: '/settings',      label: 'Settings',     icon: Settings },
+  { href: '/settings',      label: 'Settings',      icon: Settings },
 ]
 
-export default async function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   let user: { userId: string; email: string; name: string | null } | null = null
   try {
     user = await getAuthUser()
@@ -49,39 +45,27 @@ export default async function DashboardLayout({
     <div className="flex min-h-screen bg-[#080808]">
 
       {/* ── Sidebar ─────────────────────────────────────── */}
-      <aside className="w-60 flex flex-col shrink-0 bg-[#0a0a0a] border-r border-white/[0.06]">
+      <aside className="w-60 flex flex-col shrink-0 bg-[#080808] border-r border-white/5">
 
         {/* Logo */}
-        <div className="px-5 py-5 border-b border-white/[0.06]">
+        <div className="px-5 py-5 border-b border-white/5">
           <Link href="/dashboard" className="flex items-center gap-2.5 group">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500/15 border border-violet-500/25 group-hover:bg-violet-500/25 transition-colors">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500/15 border border-violet-500/25 group-hover:bg-violet-500/25 transition-colors shadow-[0_0_12px_rgba(139,92,246,0.3)]">
               <span className="text-sm bg-gradient-to-br from-violet-400 to-cyan-400 bg-clip-text text-transparent font-bold">⚡</span>
             </div>
             <span className="font-semibold text-white text-sm tracking-tight">AgentOS</span>
           </Link>
         </div>
 
-        {/* Nav */}
+        {/* Nav — client component for active state */}
         <nav className="flex-1 px-3 py-4 space-y-0.5">
-          {navItems.map((item) => {
-            const Icon = item.icon
-            // Note: active state is handled client-side via pathname; for SSR we leave default styling
-            // A client wrapper would be needed for true active highlighting — kept server-safe here
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-500 hover:bg-white/5 hover:text-white transition-all duration-150 border-l-2 border-transparent hover:border-violet-500/50"
-              >
-                <Icon className="h-4 w-4 shrink-0 transition-colors group-hover:text-violet-400" />
-                {item.label}
-              </Link>
-            )
-          })}
+          {navItems.map((item) => (
+            <NavItem key={item.href} href={item.href} label={item.label} icon={item.icon} />
+          ))}
         </nav>
 
         {/* User footer */}
-        <div className="border-t border-white/[0.06] px-4 py-4 space-y-3">
+        <div className="border-t border-white/5 px-4 py-4 space-y-3">
           <div className="flex items-center gap-3">
             <Avatar className="h-7 w-7 shrink-0">
               <AvatarFallback className="text-[10px] bg-violet-500/15 text-violet-300 border border-violet-500/25">
@@ -106,7 +90,7 @@ export default async function DashboardLayout({
       {/* ── Main content ────────────────────────────────── */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top bar */}
-        <header className="h-14 border-b border-white/[0.06] px-8 flex items-center justify-end bg-[#080808]/80 backdrop-blur-sm shrink-0">
+        <header className="h-14 border-b border-white/5 px-8 flex items-center justify-end bg-[#0a0a0a] backdrop-blur-sm shrink-0">
           <div className="flex items-center gap-3">
             <Avatar className="h-7 w-7">
               <AvatarFallback className="text-[10px] bg-violet-500/15 text-violet-300">

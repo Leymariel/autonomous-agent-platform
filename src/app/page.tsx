@@ -1,299 +1,280 @@
 /**
  * Landing page — AgentOS
- * ElevenLabs-inspired: near-black base, aurora + particles canvas, blur-in hero,
- * GlowCards feature grid, gradient CTAs. Dark-only, GPU-friendly animations.
+ * Full ReactBits-style: particles, aurora, spotlight cards, animated border, typing text,
+ * gradient text, blur-in, noise cards, badge glow. Dark-first, GPU-friendly animations.
  */
 'use client'
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Mail, Calendar, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react'
+import { Mail, Calendar, Shield, Zap, ArrowRight } from 'lucide-react'
 import { AuroraBackground } from '@/components/reactbits/aurora-background'
 import { Particles }        from '@/components/reactbits/particles'
-import { GlowCard }         from '@/components/reactbits/glow-card'
 import { GradientText }     from '@/components/reactbits/gradient-text'
 import { BlurIn }           from '@/components/reactbits/blur-in'
+import { SpotlightCard }    from '@/components/reactbits/spotlight'
+import { BadgeGlow }        from '@/components/reactbits/badge-glow'
+import { AnimatedBorder }   from '@/components/reactbits/animated-border'
+import { TypingText }       from '@/components/reactbits/typing-text'
+import { NoiseCard }        from '@/components/reactbits/noise-card'
+import { CountingNumber }   from '@/components/reactbits/counting-number'
 
-/* ── Animation helpers ─────────────────────────────────── */
-const fadeSlide = {
-  hidden:  { opacity: 0, y: 20 },
-  visible: (delay = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] },
-  }),
-}
-
-const staggerContainer = {
-  hidden:  {},
-  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
-}
-
-const cardVariant = {
-  hidden:  { opacity: 0, y: 32 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
-}
-
-/* ── Data ───────────────────────────────────────────────── */
-const features = [
-  {
-    icon: Mail,
-    iconColor: 'text-violet-400',
-    iconBg:    'bg-violet-500/10 border-violet-500/20',
-    title:     'Reads & triages your inbox',
-    description:
-      'Your agent reads every email, categorises by priority, drafts replies, and surfaces only what needs your eyes. Zero inbox anxiety.',
-  },
-  {
-    icon: Calendar,
-    iconColor: 'text-blue-400',
-    iconBg:    'bg-blue-500/10 border-blue-500/20',
-    title:     'Schedules meetings automatically',
-    description:
-      'Proposes times based on your calendar preferences, books the slot, sends invites — all without a single back-and-forth email.',
-  },
-  {
-    icon: ShieldCheck,
-    iconColor: 'text-cyan-400',
-    iconBg:    'bg-cyan-500/10 border-cyan-500/20',
-    title:     'Takes action, asks permission',
-    description:
-      'Every action is logged, every risky move needs your approval. You set the rules. The agent respects them. Always.',
-  },
-]
-
-const socialProof = ['Acme Corp', 'Vercel-style', 'Y-Combinator', 'Stripe-adjacent']
-
-/* ── Component ──────────────────────────────────────────── */
 export default function LandingPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-[#080808] text-white overflow-x-hidden">
+    <div className="min-h-screen bg-[#080808] text-white overflow-x-hidden">
 
       {/* ── Fixed Nav ─────────────────────────────────────── */}
-      <header className="fixed top-0 inset-x-0 z-50 border-b border-white/5 bg-black/20 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link href="/" className="flex items-center gap-2 group">
-            <span className="text-lg font-bold tracking-tight">
-              <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">⚡</span>
-              {' '}AgentOS
-            </span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link href="/sign-in">
-              <button className="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors duration-200 rounded-lg hover:bg-white/5">
-                Sign in
-              </button>
-            </Link>
-            <Link href="/sign-up">
-              <button className="px-5 py-2 text-sm font-semibold text-black bg-white rounded-full hover:bg-zinc-100 transition-colors duration-200 shadow-[0_0_20px_rgba(255,255,255,0.15)]">
-                Get started
-              </button>
-            </Link>
-          </div>
+      <nav className="fixed top-0 inset-x-0 z-50 backdrop-blur-xl bg-black/30 border-b border-white/5 px-6 py-4 flex justify-between items-center">
+        <div className="flex items-center gap-2 font-semibold text-sm">
+          <span className="text-violet-400">⚡</span>
+          <GradientText>AgentOS</GradientText>
         </div>
-      </header>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/sign-in"
+            className="text-sm text-zinc-400 hover:text-white transition-colors px-4 py-2"
+          >
+            Sign in
+          </Link>
+          <Link
+            href="/sign-up"
+            className="text-sm bg-white text-black hover:bg-zinc-100 rounded-full px-5 py-2 font-semibold transition-colors"
+          >
+            Get started
+          </Link>
+        </div>
+      </nav>
 
       {/* ── Hero ──────────────────────────────────────────── */}
-      <AuroraBackground className="relative min-h-screen flex flex-col items-center justify-center pt-20 px-6">
-        {/* Particles layer */}
-        <Particles count={55} className="opacity-60" />
+      <section className="relative min-h-screen flex flex-col items-center justify-center pt-16 pb-24">
+        <AuroraBackground className="absolute inset-0 pointer-events-none" />
+        <Particles className="absolute inset-0 pointer-events-none" quantity={80} />
 
-        {/* Radial glow behind hero text */}
-        <div
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(139,92,246,0.12) 0%, transparent 70%)',
-          }}
-        />
-
-        <div className="relative z-10 mx-auto max-w-4xl text-center">
-
-          {/* Pill badge */}
-          <BlurIn delay={0} className="inline-block mb-8">
-            <div className="inline-flex items-center gap-2.5 rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-sm font-medium text-violet-300 backdrop-blur-sm">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-violet-400 opacity-60" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-violet-400 animate-glow-dot" />
-              </span>
-              AI-powered · No code required
-            </div>
-          </BlurIn>
+        <div className="relative z-10 flex flex-col items-center text-center px-6">
+          {/* Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mb-8"
+          >
+            <BadgeGlow color="violet">✦ Now in early access</BadgeGlow>
+          </motion.div>
 
           {/* H1 */}
-          <BlurIn delay={0.1}>
-            <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-none">
-              <span className="block text-white mb-2">The AI employee</span>
-              <span className="block">
-                <GradientText className="text-6xl md:text-7xl lg:text-8xl font-bold">
-                  that never sleeps.
-                </GradientText>
-              </span>
-            </h1>
-          </BlurIn>
-
-          {/* Subheadline */}
-          <BlurIn delay={0.2}>
-            <p className="mt-7 text-lg md:text-xl text-zinc-400 max-w-lg mx-auto leading-relaxed">
-              Set up your autonomous AI agent in minutes. It handles email, meetings,
-              and tasks — and asks before doing anything that matters.
-            </p>
-          </BlurIn>
-
-          {/* CTAs */}
-          <BlurIn delay={0.35}>
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/sign-up">
-                <button className="group relative px-8 py-3.5 text-base font-semibold text-black bg-white rounded-full hover:bg-zinc-100 transition-all duration-200 shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_40px_rgba(255,255,255,0.3)]">
-                  Get started free
-                  <ArrowRight className="inline-block ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-                </button>
-              </Link>
-              <Link href="#features">
-                <button className="px-8 py-3.5 text-base font-medium text-zinc-300 border border-white/20 rounded-full hover:bg-white/5 hover:border-white/30 transition-all duration-200">
-                  See how it works
-                </button>
-              </Link>
-            </div>
-          </BlurIn>
-
-          {/* Social proof strip */}
-          <BlurIn delay={0.5}>
-            <div className="mt-12 flex flex-col items-center gap-3">
-              <p className="text-xs text-zinc-600 uppercase tracking-widest font-medium">
-                Trusted by founders at
-              </p>
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                {socialProof.map((name) => (
-                  <span
-                    key={name}
-                    className="px-3 py-1 rounded-full border border-white/8 bg-white/4 text-xs text-zinc-500 font-medium"
-                  >
-                    {name}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </BlurIn>
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-30">
-          <span className="text-xs text-zinc-500 tracking-widest uppercase">Scroll</span>
-          <div className="w-px h-8 bg-gradient-to-b from-zinc-500 to-transparent" />
-        </div>
-      </AuroraBackground>
-
-      {/* ── Feature Cards ─────────────────────────────────── */}
-      <section id="features" className="py-32 px-6">
-        <div className="mx-auto max-w-5xl">
-
-          {/* Section label */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            className="text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-center leading-[0.95]"
           >
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs text-zinc-500 font-medium uppercase tracking-widest mb-6">
-              <Sparkles className="h-3 w-3 text-violet-400" />
-              What your agent does
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
-              Everything handled.{' '}
-              <GradientText>Nothing missed.</GradientText>
-            </h2>
-            <p className="mt-4 text-zinc-500 text-lg max-w-xl mx-auto">
-              Plug your accounts in once. Your agent gets to work immediately.
-            </p>
-          </motion.div>
+            <span className="block text-white">Your AI</span>
+            <span className="block">
+              <GradientText>employee</GradientText>
+            </span>
+            <span className="block text-zinc-400 mt-2 text-4xl md:text-5xl lg:text-6xl font-semibold">
+              <TypingText texts={['that reads email', 'that books meetings', 'that never sleeps']} />
+            </span>
+          </motion.h1>
 
-          {/* Cards grid */}
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-5"
+          {/* Subtext */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="text-lg text-zinc-500 max-w-xl text-center mt-6"
           >
-            {features.map((feat) => (
-              <motion.div key={feat.title} variants={cardVariant}>
-                <GlowCard className="h-full flex flex-col gap-5">
-                  {/* Icon */}
-                  <div className={`inline-flex h-12 w-12 items-center justify-center rounded-xl border ${feat.iconBg}`}>
-                    <feat.icon className={`h-5 w-5 ${feat.iconColor}`} />
-                  </div>
-                  {/* Text */}
-                  <div>
-                    <h3 className="font-semibold text-white text-base mb-2">{feat.title}</h3>
-                    <p className="text-sm text-zinc-500 leading-relaxed">{feat.description}</p>
-                  </div>
-                </GlowCard>
-              </motion.div>
-            ))}
-          </motion.div>
+            Set up your autonomous AI agent in under 10 minutes — no code, no jargon, no surprises.
+            It acts; you approve.
+          </motion.p>
+
+          {/* Buttons */}
+          <BlurIn delay={0.35} className="mt-10 flex flex-col sm:flex-row items-center gap-4">
+            <Link
+              href="/sign-up"
+              className="bg-white text-black hover:bg-zinc-100 rounded-full px-8 py-3 font-semibold text-sm transition-colors inline-flex items-center gap-2"
+            >
+              Get started free <ArrowRight className="h-4 w-4" />
+            </Link>
+            <button className="border border-white/20 text-zinc-300 hover:text-white hover:border-white/40 rounded-full px-8 py-3 text-sm transition-colors">
+              Watch demo
+            </button>
+          </BlurIn>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="mt-5 text-zinc-600 text-sm"
+          >
+            No credit card required · Free forever plan
+          </motion.p>
         </div>
       </section>
 
-      {/* ── Divider line ───────────────────────────────────── */}
-      <div className="mx-auto max-w-5xl px-6 w-full">
-        <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
-      </div>
-
-      {/* ── Final CTA ─────────────────────────────────────── */}
-      <section className="py-32 px-6">
-        <div className="relative mx-auto max-w-3xl text-center">
-
-          {/* Background glow */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(139,92,246,0.1) 0%, transparent 70%)',
-            }}
-          />
-
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="relative z-10"
-          >
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
-              Ready to hire your{' '}
-              <GradientText>AI employee?</GradientText>
-            </h2>
-            <p className="mt-6 text-lg text-zinc-500 max-w-md mx-auto">
-              Setup takes under 10 minutes. No docs, no engineers, no headaches.
-            </p>
-            <div className="mt-10">
-              <Link href="/sign-up">
-                <button className="group relative px-10 py-4 text-base font-semibold text-black bg-white rounded-full hover:bg-zinc-100 transition-all duration-200 shadow-[0_0_50px_rgba(139,92,246,0.4)] hover:shadow-[0_0_60px_rgba(139,92,246,0.6)]">
-                  Get started free
-                  <ArrowRight className="inline-block ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
-                </button>
-              </Link>
-              <p className="mt-4 text-xs text-zinc-600">No credit card required · Cancel any time</p>
+      {/* ── Stats strip ───────────────────────────────────── */}
+      <section className="border-y border-white/5 py-10">
+        <div className="max-w-4xl mx-auto grid grid-cols-3 divide-x divide-white/5">
+          {[
+            { value: 10, suffix: ' min', label: 'Setup time' },
+            { display: 'Zero', label: 'Lines of code' },
+            { value: 100, suffix: '%', label: 'Transparent' },
+          ].map((stat, i) => (
+            <div key={i} className="flex flex-col items-center gap-1 px-8">
+              <span className="text-3xl md:text-4xl font-bold text-white">
+                {'value' in stat ? (
+                  <CountingNumber to={stat.value} suffix={stat.suffix} />
+                ) : (
+                  stat.display
+                )}
+              </span>
+              <span className="text-sm text-zinc-600">{stat.label}</span>
             </div>
-          </motion.div>
+          ))}
         </div>
+      </section>
+
+      {/* ── Features ──────────────────────────────────────── */}
+      <section className="mt-32 px-6 max-w-6xl mx-auto">
+        <div className="flex flex-col items-center mb-16">
+          <BadgeGlow color="blue" className="mb-4">Features</BadgeGlow>
+          <h2 className="text-4xl md:text-5xl font-bold text-center">
+            Everything your <GradientText>agent needs</GradientText>
+          </h2>
+          <p className="mt-4 text-zinc-500 text-center max-w-md">
+            From inbox to calendar to guardrails — every tool your AI employee needs, built in from day one.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6">
+          {[
+            {
+              icon: Mail,
+              iconColor: 'text-violet-400',
+              iconBg: 'bg-violet-500/10',
+              title: 'Inbox mastery',
+              desc: 'Reads, categorizes, and drafts replies. You approve before anything sends.',
+              delay: 0,
+            },
+            {
+              icon: Calendar,
+              iconColor: 'text-blue-400',
+              iconBg: 'bg-blue-500/10',
+              title: 'Calendar intelligence',
+              desc: 'Finds gaps, suggests times, books meetings. Always checks with you first.',
+              delay: 0.1,
+            },
+            {
+              icon: Shield,
+              iconColor: 'text-green-400',
+              iconBg: 'bg-green-500/10',
+              title: 'Built-in guardrails',
+              desc: 'Every action is logged. Dangerous actions always require your approval.',
+              delay: 0.2,
+            },
+          ].map((feature, i) => {
+            const Icon = feature.icon
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: feature.delay, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <SpotlightCard className="h-full">
+                  <div className={`mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl ${feature.iconBg}`}>
+                    <Icon className={`h-5 w-5 ${feature.iconColor}`} />
+                  </div>
+                  <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
+                  <p className="text-sm text-zinc-500 leading-relaxed">{feature.desc}</p>
+                </SpotlightCard>
+              </motion.div>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* ── How it works ──────────────────────────────────── */}
+      <section className="mt-32 px-6 max-w-5xl mx-auto">
+        <div className="flex flex-col items-center mb-16">
+          <BadgeGlow color="violet" className="mb-4">How it works</BadgeGlow>
+          <h2 className="text-4xl md:text-5xl font-bold text-center">
+            Up and running in <GradientText>3 steps</GradientText>
+          </h2>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-6 relative">
+          {/* Dashed connector line */}
+          <div className="hidden md:block absolute top-12 left-1/3 right-1/3 border-t-2 border-dashed border-white/10 z-0" />
+
+          {[
+            { num: '01', title: 'Connect your tools', desc: 'Link Gmail, Google Calendar, or other tools in one click. No API keys, no setup docs.' },
+            { num: '02', title: 'Set permissions', desc: 'Choose exactly what your agent can do. "Draft only" or "send with approval" — you control it.' },
+            { num: '03', title: 'Let it run', desc: 'Your agent works in the background. Every action is logged, reviewable, and fully reversible.' },
+          ].map((step, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: i * 0.12, ease: [0.16, 1, 0.3, 1] }}
+              className="relative z-10"
+            >
+              <NoiseCard className="p-6">
+                <div className="mb-4 text-3xl font-bold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
+                  {step.num}
+                </div>
+                <h3 className="text-base font-semibold text-white mb-2">{step.title}</h3>
+                <p className="text-sm text-zinc-500 leading-relaxed">{step.desc}</p>
+              </NoiseCard>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── CTA ───────────────────────────────────────────── */}
+      <section className="mt-32 mb-24 px-6 max-w-2xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <AnimatedBorder>
+            <div className="p-12 flex flex-col items-center text-center">
+              <Zap className="h-10 w-10 text-violet-400 mb-6" />
+              <h2 className="text-3xl md:text-4xl font-bold text-white mb-3">
+                Ready to hire your AI employee?
+              </h2>
+              <p className="text-zinc-500 mb-8 max-w-sm">
+                Set up in under 10 minutes. No code required.
+              </p>
+              <Link
+                href="/sign-up"
+                className="bg-white text-black hover:bg-zinc-100 rounded-full px-10 py-3.5 font-semibold text-sm transition-colors inline-flex items-center gap-2"
+              >
+                Get started free <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </AnimatedBorder>
+        </motion.div>
       </section>
 
       {/* ── Footer ────────────────────────────────────────── */}
-      <footer className="border-t border-white/5 py-8 px-6">
-        <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4">
-          <span className="flex items-center gap-2 text-sm font-semibold">
-            <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">⚡</span>
-            <span className="text-zinc-500">AgentOS</span>
-          </span>
-          <p className="text-xs text-zinc-700">© {new Date().getFullYear()} AgentOS. All rights reserved.</p>
-          <div className="flex items-center gap-6 text-xs text-zinc-600">
-            <Link href="/sign-in" className="hover:text-zinc-400 transition-colors">Sign in</Link>
-            <Link href="/sign-up" className="hover:text-zinc-400 transition-colors">Get started</Link>
-          </div>
+      <footer className="border-t border-white/5 py-8 px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="flex items-center gap-2 text-sm font-semibold">
+          <span className="text-violet-400">⚡</span>
+          <GradientText>AgentOS</GradientText>
+        </div>
+        <p className="text-xs text-zinc-700">
+          © {new Date().getFullYear()} AgentOS. Built for humans, run by AI.
+        </p>
+        <div className="flex items-center gap-5 text-xs text-zinc-700">
+          <Link href="#" className="hover:text-zinc-400 transition-colors">Privacy</Link>
+          <Link href="#" className="hover:text-zinc-400 transition-colors">Terms</Link>
         </div>
       </footer>
-
     </div>
   )
 }
