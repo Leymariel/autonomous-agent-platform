@@ -1,4 +1,3 @@
-export const runtime = 'edge'
 import { NextResponse } from 'next/server'
 import { eq, desc } from 'drizzle-orm'
 import { getAuthUser } from '@/lib/auth'
