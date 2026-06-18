@@ -2,24 +2,39 @@
 import { useEffect } from 'react'
 import Link from 'next/link'
 
-export default function DashboardError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+export default function DashboardError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string }
+  reset: () => void
+}) {
   useEffect(() => {
-    console.error(error)
+    console.error('[Dashboard Error]', error.digest, error.message)
   }, [error])
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="flex min-h-[60vh] items-center justify-center">
       <div className="text-center max-w-md p-8">
-        <div className="text-4xl mb-4">⚠️</div>
-        <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
-        <p className="text-sm text-gray-500 mb-6 font-mono">{error.digest}</p>
+        <p className="text-4xl mb-4">⚠️</p>
+        <h2 className="text-xl font-semibold text-white mb-2">Something went wrong</h2>
+        <p className="text-sm text-zinc-500 mb-1">
+          There was an error loading this page.
+        </p>
+        {error.digest && (
+          <p className="text-xs text-zinc-600 font-mono mb-6">ref: {error.digest}</p>
+        )}
         <div className="flex gap-3 justify-center">
-          <button onClick={reset}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+          <button
+            onClick={reset}
+            className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700"
+          >
             Try again
           </button>
-          <Link href="/sign-in"
-            className="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+          <Link
+            href="/sign-in"
+            className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-zinc-300 hover:bg-white/5"
+          >
             Sign in again
           </Link>
         </div>
