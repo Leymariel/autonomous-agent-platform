@@ -1,23 +1,26 @@
 /**
  * Sign-up page — AgentOS
- * Glassmorphism card on animated gradient bg. Google as primary CTA.
+ * ElevenLabs-style: full-screen aurora bg, GlowCard-style centered card, BlurIn animation.
+ * Google as primary CTA (white bg, black text, prominent). Email/password below divider.
  */
 'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { signIn, signUp } from '@/lib/auth/client'
-import { Zap } from 'lucide-react'
+import { AuroraBackground } from '@/components/reactbits/aurora-background'
+import { BlurIn }           from '@/components/reactbits/blur-in'
+import { GradientText }     from '@/components/reactbits/gradient-text'
 
 export default function SignUpPage() {
   const router = useRouter()
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [name, setName]                 = useState('')
+  const [email, setEmail]               = useState('')
+  const [password, setPassword]         = useState('')
+  const [error, setError]               = useState('')
+  const [loading, setLoading]           = useState(false)
   const [googleLoading, setGoogleLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
@@ -49,37 +52,38 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="auth-bg flex min-h-screen items-center justify-center p-4">
-      {/* Logo top-left */}
+    <AuroraBackground className="auth-bg min-h-screen flex items-center justify-center p-4 bg-[#080808]">
+      {/* Logo */}
       <Link
         href="/"
-        className="absolute top-6 left-6 flex items-center gap-2 text-white/80 hover:text-white transition-colors"
+        className="absolute top-6 left-6 flex items-center gap-2 text-zinc-400 hover:text-white transition-colors"
       >
-        <Zap className="h-5 w-5 text-blue-400" />
-        <span className="font-semibold text-sm">AgentOS</span>
+        <span className="text-sm font-bold">
+          <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">⚡</span>
+          {' '}AgentOS
+        </span>
       </Link>
 
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-        className="w-full max-w-md"
-      >
-        {/* Glass card */}
-        <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl">
+      <BlurIn delay={0} className="w-full max-w-md">
+        {/* Card */}
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-xl p-8 shadow-[0_0_60px_rgba(0,0,0,0.5)]">
+
+          {/* Header */}
           <div className="text-center mb-8">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/20 border border-blue-400/30">
-              <Zap className="h-6 w-6 text-blue-400" />
+            <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/15 border border-violet-500/25">
+              <span className="text-xl">⚡</span>
             </div>
             <h1 className="text-2xl font-bold text-white">Create your account</h1>
-            <p className="mt-1.5 text-sm text-white/50">Your AI employee is waiting</p>
+            <p className="mt-1.5 text-sm text-zinc-500">
+              Your <GradientText>AI employee</GradientText> is waiting
+            </p>
           </div>
 
           {/* Google — primary CTA */}
           <button
             onClick={handleGoogleSignIn}
             disabled={googleLoading}
-            className="w-full flex items-center justify-center gap-3 rounded-xl border border-white/15 bg-white/8 px-4 py-3 text-sm font-medium text-white hover:bg-white/12 disabled:opacity-50 transition-all duration-200 hover:border-white/25 mb-6"
+            className="w-full flex items-center justify-center gap-3 rounded-xl bg-white px-4 py-3.5 text-sm font-semibold text-black hover:bg-zinc-100 disabled:opacity-60 transition-all duration-200 shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.15)] mb-6"
           >
             <svg className="h-5 w-5 flex-shrink-0" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -87,49 +91,49 @@ export default function SignUpPage() {
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
             </svg>
-            <span className="text-base">{googleLoading ? 'Redirecting…' : 'Continue with Google'}</span>
+            <span>{googleLoading ? 'Redirecting…' : 'Continue with Google'}</span>
           </button>
 
           {/* Divider */}
           <div className="relative mb-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/10" />
+              <div className="w-full border-t border-white/8" />
             </div>
-            <div className="relative flex justify-center text-xs text-white/30">
-              <span className="bg-transparent px-3">or sign up with email</span>
+            <div className="relative flex justify-center text-xs text-zinc-600">
+              <span className="bg-[#0d0d0d] px-3">or sign up with email</span>
             </div>
           </div>
 
           {/* Email form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-white/60 mb-1.5">Name</label>
+              <label className="block text-xs font-medium text-zinc-500 mb-1.5">Name</label>
               <input
                 type="text"
                 value={name}
                 onChange={e => setName(e.target.value)}
-                className="block w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/25 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
+                className="block w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-zinc-700 focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-500/40 transition-all"
                 placeholder="Your name"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-white/60 mb-1.5">Email</label>
+              <label className="block text-xs font-medium text-zinc-500 mb-1.5">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                className="block w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/25 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
+                className="block w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-zinc-700 focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-500/40 transition-all"
                 placeholder="you@example.com"
                 required
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-white/60 mb-1.5">Password</label>
+              <label className="block text-xs font-medium text-zinc-500 mb-1.5">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className="block w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/25 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
+                className="block w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-zinc-700 focus:outline-none focus:ring-2 focus:ring-violet-500/40 focus:border-violet-500/40 transition-all"
                 placeholder="At least 8 characters"
                 minLength={8}
                 required
@@ -144,7 +148,7 @@ export default function SignUpPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
                   transition={{ duration: 0.2 }}
-                  className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2"
+                  className="text-sm text-red-400 bg-red-500/8 border border-red-500/20 rounded-lg px-3 py-2"
                 >
                   {error}
                 </motion.p>
@@ -154,20 +158,20 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-lg bg-blue-600 hover:bg-blue-500 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50 transition-colors"
+              className="w-full rounded-lg border border-white/10 bg-white/8 hover:bg-white/12 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50 transition-colors"
             >
               {loading ? 'Creating account…' : 'Create account'}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-white/40">
+          <p className="mt-6 text-center text-sm text-zinc-600">
             Already have an account?{' '}
-            <Link href="/sign-in" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+            <Link href="/sign-in" className="text-violet-400 hover:text-violet-300 font-medium transition-colors">
               Sign in
             </Link>
           </p>
         </div>
-      </motion.div>
-    </div>
+      </BlurIn>
+    </AuroraBackground>
   )
 }

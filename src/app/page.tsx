@@ -1,184 +1,299 @@
 /**
  * Landing page — AgentOS
- * Premium hero + feature grid + social proof. Dark-ready, CSS gradient bg, framer-motion entrance.
+ * ElevenLabs-inspired: near-black base, aurora + particles canvas, blur-in hero,
+ * GlowCards feature grid, gradient CTAs. Dark-only, GPU-friendly animations.
  */
 'use client'
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { Mail, Calendar, ShieldCheck, Zap, ArrowRight } from 'lucide-react'
+import { Mail, Calendar, ShieldCheck, ArrowRight, Sparkles } from 'lucide-react'
+import { AuroraBackground } from '@/components/reactbits/aurora-background'
+import { Particles }        from '@/components/reactbits/particles'
+import { GlowCard }         from '@/components/reactbits/glow-card'
+import { GradientText }     from '@/components/reactbits/gradient-text'
+import { BlurIn }           from '@/components/reactbits/blur-in'
 
-const fadeUp = {
-  hidden:  { opacity: 0, y: 24 },
+/* ── Animation helpers ─────────────────────────────────── */
+const fadeSlide = {
+  hidden:  { opacity: 0, y: 20 },
   visible: (delay = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1], delay },
+    transition: { duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] },
   }),
 }
 
+const staggerContainer = {
+  hidden:  {},
+  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
+}
+
+const cardVariant = {
+  hidden:  { opacity: 0, y: 32 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } },
+}
+
+/* ── Data ───────────────────────────────────────────────── */
 const features = [
   {
     icon: Mail,
-    title: 'Reads your inbox',
-    description: 'Your agent reads, categorizes, and drafts replies — you just review and approve.',
+    iconColor: 'text-violet-400',
+    iconBg:    'bg-violet-500/10 border-violet-500/20',
+    title:     'Reads & triages your inbox',
+    description:
+      'Your agent reads every email, categorises by priority, drafts replies, and surfaces only what needs your eyes. Zero inbox anxiety.',
   },
   {
     icon: Calendar,
-    title: 'Manages your calendar',
-    description: 'Proposes times, books meetings, and resolves conflicts based on your preferences.',
+    iconColor: 'text-blue-400',
+    iconBg:    'bg-blue-500/10 border-blue-500/20',
+    title:     'Schedules meetings automatically',
+    description:
+      'Proposes times based on your calendar preferences, books the slot, sends invites — all without a single back-and-forth email.',
   },
   {
     icon: ShieldCheck,
-    title: 'Takes action, with your approval',
-    description: 'Every action is logged. Set approval rules per task type. Nothing happens without your OK.',
+    iconColor: 'text-cyan-400',
+    iconBg:    'bg-cyan-500/10 border-cyan-500/20',
+    title:     'Takes action, asks permission',
+    description:
+      'Every action is logged, every risky move needs your approval. You set the rules. The agent respects them. Always.',
   },
 ]
 
+const socialProof = ['Acme Corp', 'Vercel-style', 'Y-Combinator', 'Stripe-adjacent']
+
+/* ── Component ──────────────────────────────────────────── */
 export default function LandingPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
-      {/* Nav */}
-      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
+    <div className="flex min-h-screen flex-col bg-[#080808] text-white overflow-x-hidden">
+
+      {/* ── Fixed Nav ─────────────────────────────────────── */}
+      <header className="fixed top-0 inset-x-0 z-50 border-b border-white/5 bg-black/20 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2">
-            <span className="text-xl font-bold tracking-tight">
-              <span className="text-primary">⚡</span> AgentOS
+          <Link href="/" className="flex items-center gap-2 group">
+            <span className="text-lg font-bold tracking-tight">
+              <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">⚡</span>
+              {' '}AgentOS
             </span>
-          </div>
+          </Link>
           <div className="flex items-center gap-3">
             <Link href="/sign-in">
-              <Button variant="ghost" size="sm">Sign in</Button>
+              <button className="px-4 py-2 text-sm font-medium text-zinc-400 hover:text-white transition-colors duration-200 rounded-lg hover:bg-white/5">
+                Sign in
+              </button>
             </Link>
             <Link href="/sign-up">
-              <Button size="sm" className="gap-1.5">
-                Get started <ArrowRight className="h-3.5 w-3.5" />
-              </Button>
+              <button className="px-5 py-2 text-sm font-semibold text-black bg-white rounded-full hover:bg-zinc-100 transition-colors duration-200 shadow-[0_0_20px_rgba(255,255,255,0.15)]">
+                Get started
+              </button>
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Hero */}
-      <main className="hero-bg flex flex-1 flex-col items-center justify-center text-center px-6 py-28">
-        <div className="mx-auto max-w-3xl">
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            custom={0}
-            className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-4 py-1.5 text-sm text-primary"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-60" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
-            </span>
-            Now in early access — limited spots available
-          </motion.div>
+      {/* ── Hero ──────────────────────────────────────────── */}
+      <AuroraBackground className="relative min-h-screen flex flex-col items-center justify-center pt-20 px-6">
+        {/* Particles layer */}
+        <Particles count={55} className="opacity-60" />
 
-          <motion.h1
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            custom={0.1}
-            className="text-5xl font-bold tracking-tight sm:text-6xl lg:text-7xl"
-          >
-            Your AI employee,{' '}
-            <span className="bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">
-              ready in minutes.
-            </span>
-          </motion.h1>
+        {/* Radial glow behind hero text */}
+        <div
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(139,92,246,0.12) 0%, transparent 70%)',
+          }}
+        />
 
-          <motion.p
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            custom={0.2}
-            className="mt-6 text-lg text-muted-foreground sm:text-xl max-w-2xl mx-auto leading-relaxed"
-          >
-            Set up an autonomous AI agent that manages your inbox, schedules meetings, and handles
-            tasks — all with your approval on every action that matters.
-          </motion.p>
+        <div className="relative z-10 mx-auto max-w-4xl text-center">
 
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            custom={0.3}
-            className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
-          >
-            <Link href="/sign-up">
-              <Button size="lg" className="w-full sm:w-auto px-8 gap-2 shadow-lg shadow-primary/20">
-                Get started free <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-            <Link href="/sign-in">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto px-8">
-                Sign in
-              </Button>
-            </Link>
-          </motion.div>
+          {/* Pill badge */}
+          <BlurIn delay={0} className="inline-block mb-8">
+            <div className="inline-flex items-center gap-2.5 rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-sm font-medium text-violet-300 backdrop-blur-sm">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-violet-400 opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-violet-400 animate-glow-dot" />
+              </span>
+              AI-powered · No code required
+            </div>
+          </BlurIn>
+
+          {/* H1 */}
+          <BlurIn delay={0.1}>
+            <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-none">
+              <span className="block text-white mb-2">The AI employee</span>
+              <span className="block">
+                <GradientText className="text-6xl md:text-7xl lg:text-8xl font-bold">
+                  that never sleeps.
+                </GradientText>
+              </span>
+            </h1>
+          </BlurIn>
+
+          {/* Subheadline */}
+          <BlurIn delay={0.2}>
+            <p className="mt-7 text-lg md:text-xl text-zinc-400 max-w-lg mx-auto leading-relaxed">
+              Set up your autonomous AI agent in minutes. It handles email, meetings,
+              and tasks — and asks before doing anything that matters.
+            </p>
+          </BlurIn>
+
+          {/* CTAs */}
+          <BlurIn delay={0.35}>
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/sign-up">
+                <button className="group relative px-8 py-3.5 text-base font-semibold text-black bg-white rounded-full hover:bg-zinc-100 transition-all duration-200 shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_40px_rgba(255,255,255,0.3)]">
+                  Get started free
+                  <ArrowRight className="inline-block ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+              </Link>
+              <Link href="#features">
+                <button className="px-8 py-3.5 text-base font-medium text-zinc-300 border border-white/20 rounded-full hover:bg-white/5 hover:border-white/30 transition-all duration-200">
+                  See how it works
+                </button>
+              </Link>
+            </div>
+          </BlurIn>
+
+          {/* Social proof strip */}
+          <BlurIn delay={0.5}>
+            <div className="mt-12 flex flex-col items-center gap-3">
+              <p className="text-xs text-zinc-600 uppercase tracking-widest font-medium">
+                Trusted by founders at
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {socialProof.map((name) => (
+                  <span
+                    key={name}
+                    className="px-3 py-1 rounded-full border border-white/8 bg-white/4 text-xs text-zinc-500 font-medium"
+                  >
+                    {name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </BlurIn>
         </div>
-      </main>
 
-      {/* Feature grid */}
-      <section className="border-t border-border/60 py-24 px-6">
+        {/* Scroll indicator */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-30">
+          <span className="text-xs text-zinc-500 tracking-widest uppercase">Scroll</span>
+          <div className="w-px h-8 bg-gradient-to-b from-zinc-500 to-transparent" />
+        </div>
+      </AuroraBackground>
+
+      {/* ── Feature Cards ─────────────────────────────────── */}
+      <section id="features" className="py-32 px-6">
         <div className="mx-auto max-w-5xl">
+
+          {/* Section label */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-14"
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
           >
-            <h2 className="text-3xl font-bold tracking-tight">Everything your agent can do</h2>
-            <p className="mt-3 text-muted-foreground">Plug in once, delegate forever.</p>
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs text-zinc-500 font-medium uppercase tracking-widest mb-6">
+              <Sparkles className="h-3 w-3 text-violet-400" />
+              What your agent does
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight">
+              Everything handled.{' '}
+              <GradientText>Nothing missed.</GradientText>
+            </h2>
+            <p className="mt-4 text-zinc-500 text-lg max-w-xl mx-auto">
+              Plug your accounts in once. Your agent gets to work immediately.
+            </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {features.map((feat, i) => (
-              <motion.div
-                key={feat.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="group rounded-xl border border-border/60 bg-card p-6 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
-              >
-                <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors">
-                  <feat.icon className="h-5 w-5" />
-                </div>
-                <h3 className="font-semibold text-base mb-2">{feat.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{feat.description}</p>
+          {/* Cards grid */}
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-60px' }}
+            className="grid grid-cols-1 md:grid-cols-3 gap-5"
+          >
+            {features.map((feat) => (
+              <motion.div key={feat.title} variants={cardVariant}>
+                <GlowCard className="h-full flex flex-col gap-5">
+                  {/* Icon */}
+                  <div className={`inline-flex h-12 w-12 items-center justify-center rounded-xl border ${feat.iconBg}`}>
+                    <feat.icon className={`h-5 w-5 ${feat.iconColor}`} />
+                  </div>
+                  {/* Text */}
+                  <div>
+                    <h3 className="font-semibold text-white text-base mb-2">{feat.title}</h3>
+                    <p className="text-sm text-zinc-500 leading-relaxed">{feat.description}</p>
+                  </div>
+                </GlowCard>
               </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Social proof */}
-      <section className="border-t border-border/60 py-16 px-6">
-        <div className="mx-auto max-w-5xl text-center">
-          <div className="flex flex-wrap items-center justify-center gap-2 text-sm text-muted-foreground">
-            <Zap className="h-4 w-4 text-primary" />
-            <span>Built on the same stack as your favourite SaaS tools</span>
-            <span className="hidden sm:inline">·</span>
-            <span className="hidden sm:inline font-medium text-foreground">Next.js · Vercel · Neon · Clerk</span>
-          </div>
+      {/* ── Divider line ───────────────────────────────────── */}
+      <div className="mx-auto max-w-5xl px-6 w-full">
+        <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      </div>
+
+      {/* ── Final CTA ─────────────────────────────────────── */}
+      <section className="py-32 px-6">
+        <div className="relative mx-auto max-w-3xl text-center">
+
+          {/* Background glow */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(139,92,246,0.1) 0%, transparent 70%)',
+            }}
+          />
+
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            className="relative z-10"
+          >
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
+              Ready to hire your{' '}
+              <GradientText>AI employee?</GradientText>
+            </h2>
+            <p className="mt-6 text-lg text-zinc-500 max-w-md mx-auto">
+              Setup takes under 10 minutes. No docs, no engineers, no headaches.
+            </p>
+            <div className="mt-10">
+              <Link href="/sign-up">
+                <button className="group relative px-10 py-4 text-base font-semibold text-black bg-white rounded-full hover:bg-zinc-100 transition-all duration-200 shadow-[0_0_50px_rgba(139,92,246,0.4)] hover:shadow-[0_0_60px_rgba(139,92,246,0.6)]">
+                  Get started free
+                  <ArrowRight className="inline-block ml-2 h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+              </Link>
+              <p className="mt-4 text-xs text-zinc-600">No credit card required · Cancel any time</p>
+            </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border/60 py-8 px-6">
-        <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <span>© {new Date().getFullYear()} AgentOS. All rights reserved.</span>
-          <div className="flex items-center gap-6">
-            <Link href="/sign-in" className="hover:text-foreground transition-colors">Sign in</Link>
-            <Link href="/sign-up" className="hover:text-foreground transition-colors">Get started</Link>
+      {/* ── Footer ────────────────────────────────────────── */}
+      <footer className="border-t border-white/5 py-8 px-6">
+        <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          <span className="flex items-center gap-2 text-sm font-semibold">
+            <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">⚡</span>
+            <span className="text-zinc-500">AgentOS</span>
+          </span>
+          <p className="text-xs text-zinc-700">© {new Date().getFullYear()} AgentOS. All rights reserved.</p>
+          <div className="flex items-center gap-6 text-xs text-zinc-600">
+            <Link href="/sign-in" className="hover:text-zinc-400 transition-colors">Sign in</Link>
+            <Link href="/sign-up" className="hover:text-zinc-400 transition-colors">Get started</Link>
           </div>
         </div>
       </footer>
+
     </div>
   )
 }
