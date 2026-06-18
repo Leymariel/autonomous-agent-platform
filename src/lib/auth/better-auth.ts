@@ -1,4 +1,7 @@
 import { betterAuth } from 'better-auth'
+import { drizzleAdapter } from '@better-auth/drizzle-adapter'
+import { db } from '@/lib/db'
+import * as schema from '@/lib/db/schema'
 
 const appUrl = process.env.BETTER_AUTH_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
 
@@ -11,6 +14,15 @@ export const auth = betterAuth({
     'https://autonomous-agent-platform-nine.vercel.app',
     'https://autonomous-agent-platform.vercel.app',
   ],
+  database: drizzleAdapter(db, {
+    provider: 'pg',
+    schema: {
+      user: schema.users,
+      session: schema.sessions,
+      account: schema.accounts,
+      verification: schema.verifications,
+    },
+  }),
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
