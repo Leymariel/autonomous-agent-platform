@@ -1,14 +1,26 @@
+/**
+ * Dashboard layout — AgentOS
+ * Dark sidebar (gray-950), Lucide icons, glow logo, user avatar at bottom.
+ */
+
 import { getAuthUser } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import {
+  LayoutDashboard,
+  Bot,
+  Store,
+  Zap,
+  Settings,
+} from 'lucide-react'
 
 const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: '🏠' },
-  { href: '/agents', label: 'My Agent', icon: '🤖' },
-  { href: '/marketplace', label: 'Marketplace', icon: '🛍️' },
-  { href: '/action-center', label: 'Action Center', icon: '⚡' },
-  { href: '/settings', label: 'Settings', icon: '⚙️' },
+  { href: '/dashboard',     label: 'Dashboard',     icon: LayoutDashboard },
+  { href: '/agents',        label: 'My Agent',       icon: Bot },
+  { href: '/marketplace',   label: 'Marketplace',    icon: Store },
+  { href: '/action-center', label: 'Action Center',  icon: Zap },
+  { href: '/settings',      label: 'Settings',       icon: Settings },
 ]
 
 export default async function DashboardLayout({
@@ -34,49 +46,66 @@ export default async function DashboardLayout({
   return (
     <div className="flex min-h-screen bg-background">
       {/* Sidebar */}
-      <aside className="w-64 border-r flex flex-col bg-card">
-        <div className="px-6 py-5 border-b">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl">🤖</span>
-            <span className="font-semibold text-lg">AgentOS</span>
-          </div>
+      <aside className="w-60 flex flex-col bg-gray-950 border-r border-gray-800/60 shrink-0">
+        {/* Logo */}
+        <div className="px-5 py-5 border-b border-gray-800/60">
+          <Link href="/dashboard" className="flex items-center gap-2 group">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600/20 border border-blue-500/30 group-hover:bg-blue-600/30 transition-colors">
+              <Zap className="h-4 w-4 text-blue-400" />
+            </div>
+            <span className="font-semibold text-white text-sm tracking-tight">AgentOS</span>
+          </Link>
         </div>
-        <nav className="flex-1 px-3 py-4 space-y-1">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-            >
-              <span className="text-base">{item.icon}</span>
-              {item.label}
-            </Link>
-          ))}
+
+        {/* Nav */}
+        <nav className="flex-1 px-3 py-4 space-y-0.5">
+          {navItems.map((item) => {
+            const Icon = item.icon
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-400 hover:bg-gray-800/60 hover:text-white transition-all duration-150"
+              >
+                <Icon className="h-4 w-4 shrink-0 text-gray-500 group-hover:text-blue-400 transition-colors" />
+                {item.label}
+              </Link>
+            )
+          })}
         </nav>
-        <div className="border-t px-4 py-4">
+
+        {/* User footer */}
+        <div className="border-t border-gray-800/60 px-4 py-4">
           <div className="flex items-center gap-3">
-            <Avatar className="h-8 w-8">
-              <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+            <Avatar className="h-7 w-7 shrink-0">
+              <AvatarFallback className="text-[10px] bg-blue-600/20 text-blue-300 border border-blue-500/30">
+                {initials}
+              </AvatarFallback>
             </Avatar>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{displayName}</p>
-              <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+              <p className="text-xs font-medium text-gray-200 truncate">{displayName}</p>
+              <p className="text-[11px] text-gray-500 truncate">{user?.email}</p>
             </div>
           </div>
         </div>
       </aside>
 
-      {/* Main content */}
+      {/* Main content area */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="border-b px-8 py-4 flex items-center justify-between bg-card">
+        {/* Top bar */}
+        <header className="h-14 border-b border-border/60 px-8 flex items-center justify-between bg-background/80 backdrop-blur-sm shrink-0">
           <div />
           <div className="flex items-center gap-3">
-            <Avatar className="h-8 w-8">
-              <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+            <Avatar className="h-7 w-7">
+              <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
+                {initials}
+              </AvatarFallback>
             </Avatar>
-            <span className="text-sm font-medium">{displayName}</span>
+            <span className="text-sm font-medium text-muted-foreground hidden sm:block">{displayName}</span>
           </div>
         </header>
+
+        {/* Page content */}
         <main className="flex-1 px-8 py-8 overflow-auto">
           {children}
         </main>
