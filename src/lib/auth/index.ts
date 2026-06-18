@@ -7,7 +7,9 @@ import { eq, and } from 'drizzle-orm'
 export async function getAuthUser() {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) {
-    throw new Response('Unauthorized', { status: 401 })
+    const err = new Error('Unauthorized') as Error & { statusCode: number }
+    err.statusCode = 401
+    throw err
   }
   return {
     userId: session.user.id,          // text ID from Better Auth
@@ -25,6 +27,10 @@ export async function requireAgent(agentId: string, userId: string) {
   const agent = await db.query.agents.findFirst({
     where: and(eq(agents.id, agentId), eq(agents.userId, userId)),
   })
-  if (!agent) throw new Response('Not found or access denied', { status: 403 })
+  if (!agent) {
+    const err = new Error('Not found or access denied') as Error & { statusCode: number }
+    err.statusCode = 403
+    throw err
+  }
   return agent
 }

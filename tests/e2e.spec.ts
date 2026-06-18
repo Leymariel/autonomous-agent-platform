@@ -80,11 +80,18 @@ test('marketplace page loads for unauthenticated redirects gracefully', async ({
 })
 
 // ── 9. Sign-in then navigate (authenticated flow) ────────────────────────────
-test('authenticated user can sign in and reach dashboard', async ({ page }) => {
+test('authenticated user can sign in and reach dashboard', async ({ page, request }) => {
+  // Ensure a fresh account exists for this test (self-contained, worker-safe)
+  const authEmail = `e2e-${Date.now()}@example.com`
+  const authPassword = TEST_PASSWORD
+  await request.post(`${BASE_URL}/api/auth/sign-up/email`, {
+    data: { email: authEmail, password: authPassword, name: TEST_NAME },
+  })
+
   await page.goto(`${BASE_URL}/sign-in`)
 
-  await page.locator('input[type="email"]').fill(TEST_EMAIL)
-  await page.locator('input[type="password"]').fill(TEST_PASSWORD)
+  await page.locator('input[type="email"]').fill(authEmail)
+  await page.locator('input[type="password"]').fill(authPassword)
   await page.getByRole('button', { name: /sign in/i }).click()
 
   // Wait for redirect
