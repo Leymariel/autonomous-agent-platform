@@ -2,10 +2,9 @@ import { getAuthUser } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { eq } from 'drizzle-orm'
 import { db } from '@/lib/db'
-import { users, agents, actionLogs, oauthTokens } from '@/lib/db/schema'
+import { agents, actionLogs, oauthTokens } from '@/lib/db/schema'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
 export default async function DashboardPage() {
@@ -16,99 +15,65 @@ export default async function DashboardPage() {
     redirect('/sign-in')
   }
 
-  // Fetch user from DB
-  const userRows = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, authUser!.userId))
-    .limit(1)
+  const userId = authUser!.userId
 
-  if (userRows.length === 0) {
-    return (
-      <div className="max-w-2xl mx-auto text-center py-20">
-        <h2 className="text-2xl font-bold mb-4">Welcome to AgentOS!</h2>
-        <p className="text-muted-foreground mb-6">
-          Your account is being set up. This usually takes a few seconds.
-        </p>
-        <Button onClick={() => window.location.reload()}>Refresh</Button>
-      </div>
-    )
-  }
-
-  const dbUser = userRows[0]
-
-  // Fetch agents for user
-  const userAgents = await db
-    .select()
-    .from(agents)
-    .where(eq(agents.userId, dbUser.id))
+  // Fetch agents for this user
+  let userAgents: { id: string; name: string; status: string }[] = []
+  try {
+    userAgents = await db
+      .select({ id: agents.id, name: agents.name, status: agents.status })
+      .from(agents)
+      .where(eq(agents.userId, userId))
+  } catch { /* table may be empty */ }
 
   // Fetch recent action count
   let recentActionCount = 0
-  if (userAgents.length > 0) {
-    const agentIds = userAgents.map((a) => a.id)
-    const allLogs = await db
-      .select({ id: actionLogs.id })
-      .from(actionLogs)
-      .where(eq(actionLogs.agentId, agentIds[0]))
-    recentActionCount = allLogs.length
-  }
+  try {
+    if (userAgents.length > 0) {
+      const logs = await db
+        .select({ id: actionLogs.id })
+        .from(actionLogs)
+        .where(eq(actionLogs.agentId, userAgents[0].id))
+      recentActionCount = logs.length
+    }
+  } catch { /* no logs yet */ }
 
   // Check connected integrations
-  const connectedIntegrations = await db
-    .select({ provider: oauthTokens.provider })
-    .from(oauthTokens)
-    .where(eq(oauthTokens.userId, dbUser.id))
+  let connectedIntegrations: { provider: string }[] = []
+  try {
+    connectedIntegrations = await db
+      .select({ provider: oauthTokens.provider })
+      .from(oauthTokens)
+      .where(eq(oauthTokens.userId, userId))
+  } catch { /* no tokens yet */ }
 
-  const hasGmail = connectedIntegrations.some((i) => i.provider === 'gmail')
-  const hasCalendar = connectedIntegrations.some((i) => i.provider === 'google_calendar')
-
-  const activeAgent = userAgents.find((a) => a.status === 'active') ?? userAgents[0] ?? null
+  const hasGmail = connectedIntegrations.some(i => i.provider === 'gmail')
+  const hasCalendar = connectedIntegrations.some(i => i.provider === 'google_calendar')
+  const activeAgent = userAgents.find(a => a.status === 'active') ?? userAgents[0] ?? null
 
   const setupChecklist = [
-    {
-      id: 'gmail',
-      label: 'Connect Gmail',
-      done: hasGmail,
-      href: '/api/integrations/google/connect?scope=gmail',
-    },
-    {
-      id: 'calendar',
-      label: 'Connect Google Calendar',
-      done: hasCalendar,
-      href: '/api/integrations/google/connect?scope=calendar',
-    },
-    {
-      id: 'skills',
-      label: 'Install your first skill',
-      done: false,
-      href: '/marketplace',
-    },
+    { id: 'gmail', label: 'Connect Gmail', done: hasGmail, href: '/api/integrations/google/connect?scope=gmail' },
+    { id: 'calendar', label: 'Connect Google Calendar', done: hasCalendar, href: '/api/integrations/google/connect?scope=calendar' },
+    { id: 'skills', label: 'Install your first skill', done: userAgents.some(a => a.status === 'active'), href: '/marketplace' },
   ]
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground mt-1">Welcome back. Here's what's happening.</p>
+        <p className="text-muted-foreground mt-1">
+          Welcome back{authUser!.name ? `, ${authUser!.name}` : ''}. Here&apos;s what&apos;s happening.
+        </p>
       </div>
 
-      {/* Stats row */}
+      {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Agent status</CardDescription>
             <CardTitle className="text-2xl">
               {activeAgent ? (
-                <Badge
-                  variant={
-                    activeAgent.status === 'active'
-                      ? 'success'
-                      : activeAgent.status === 'paused'
-                      ? 'warning'
-                      : 'secondary'
-                  }
-                >
+                <Badge variant={activeAgent.status === 'active' ? 'default' : 'secondary'}>
                   {activeAgent.status}
                 </Badge>
               ) : (
@@ -148,35 +113,23 @@ export default async function DashboardPage() {
       <Card>
         <CardHeader>
           <CardTitle>Quick setup</CardTitle>
-          <CardDescription>
-            Complete these steps to get your agent running.
-          </CardDescription>
+          <CardDescription>Complete these steps to get your agent running.</CardDescription>
         </CardHeader>
         <CardContent>
           <ul className="space-y-3">
-            {setupChecklist.map((item) => (
+            {setupChecklist.map(item => (
               <li key={item.id} className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span
-                    className={`h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold ${
-                      item.done
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-muted text-muted-foreground'
-                    }`}
-                  >
+                  <span className={`h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold ${item.done ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'}`}>
                     {item.done ? '✓' : '○'}
                   </span>
-                  <span
-                    className={`text-sm font-medium ${item.done ? 'line-through text-muted-foreground' : ''}`}
-                  >
+                  <span className={`text-sm font-medium ${item.done ? 'line-through text-muted-foreground' : ''}`}>
                     {item.label}
                   </span>
                 </div>
                 {!item.done && (
-                  <Link href={item.href}>
-                    <Button variant="outline" size="sm">
-                      Set up
-                    </Button>
+                  <Link href={item.href} className="text-sm text-blue-600 hover:underline font-medium">
+                    Set up →
                   </Link>
                 )}
               </li>
@@ -194,8 +147,9 @@ export default async function DashboardPage() {
             <p className="text-muted-foreground text-sm mb-6">
               Create your first AI agent and start delegating tasks in minutes.
             </p>
-            <Link href="/agents">
-              <Button>Create your agent</Button>
+            <Link href="/agents"
+              className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+              Create your agent
             </Link>
           </CardContent>
         </Card>
