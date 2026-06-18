@@ -12,7 +12,9 @@
     "db:seed": "tsx scripts/seed.ts",
     "pages:build": "npx @cloudflare/next-on-pages",
     "pages:deploy": "wrangler pages deploy .vercel/output/static",
-    "preview": "npx @cloudflare/next-on-pages && wrangler pages dev .vercel/output/static"
+    "preview": "npx @cloudflare/next-on-pages && wrangler pages dev .vercel/output/static",
+    "test:e2e": "playwright test",
+    "test:e2e:report": "playwright show-report test-results/html"
   },
   "dependencies": {
     "next": "^15.3.3",
@@ -52,7 +54,8 @@
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
     "@cloudflare/next-on-pages": "^1",
-    "wrangler": "^3"
+    "wrangler": "^3",
+    "@playwright/test": "^1.45.0"
   },
   "installCommand": "npm install --legacy-peer-deps"
 }
