@@ -1,0 +1,39 @@
+name: QA Gate
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review]
+
+jobs:
+  qa-checklist:
+    name: QA checklist reminder
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Verify PR has How to test section
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.pull_request.body || ''
+            const hasHowToTest = body.includes('How to test')
+            const hasSummary = body.includes('Summary')
+            const hasChanges = body.includes('Changes')
+
+            if (!hasHowToTest || !hasSummary || !hasChanges) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: `## ⚠️ PR description incomplete\n\nThis PR is missing required sections. Please fill out **all** of these before QA can begin:\n\n${!hasSummary ? '- [ ] **Summary** section\n' : '- [x] Summary\n'}${!hasChanges ? '- [ ] **Changes** section\n' : '- [x] Changes\n'}${!hasHowToTest ? '- [ ] **How to test** section\n' : '- [x] How to test\n'}\n\nSee [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md) for the template.\n\n> The QA loop cannot start until all sections are present.`
+              })
+              core.setFailed('PR description is missing required sections')
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: `## 🔍 QA Review Required\n\nThis PR is ready for QA review. **QA agent must complete one of:**\n\n| Outcome | Action |\n|---------|--------|\n| ✅ All tests pass | Comment \`QA PASSED\`, approve, merge |\n| ❌ Tests fail | Comment with failures, request changes |\n| ⚠️ Cannot test | Comment reason + message Atlas immediately |\n\n**The loop must close. Do not leave this PR without a QA outcome.**\n\nSee [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md) for full workflow.`
+              })
+            }
