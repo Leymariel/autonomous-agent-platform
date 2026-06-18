@@ -7,9 +7,10 @@ export const policyTypeEnum = pgEnum('policy_type', ['always_ask', 'auto_approve
 export const actionStatusEnum = pgEnum('action_status', ['pending', 'approved', 'denied', 'executed', 'failed'])
 export const policyDecisionEnum = pgEnum('policy_decision', ['allow', 'deny', 'ask'])
 
+// Better Auth owns the users table — we reference it but don't redefine it
+// users.id is TEXT (Better Auth's default)
 export const users = pgTable('users', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  clerkId: text('clerk_id').notNull().unique(),
+  id: text('id').primaryKey(),
   email: text('email').notNull(),
   name: text('name'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -18,7 +19,7 @@ export const users = pgTable('users', {
 
 export const agents = pgTable('agents', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull(),   // TEXT to match Better Auth users.id
   name: text('name').notNull(),
   description: text('description'),
   template: text('template').notNull().default('executive_assistant'),
@@ -30,7 +31,7 @@ export const agents = pgTable('agents', {
 
 export const agentMemory = pgTable('agent_memory', {
   id: uuid('id').primaryKey().defaultRandom(),
-  agentId: uuid('agent_id').notNull().references(() => agents.id, { onDelete: 'cascade' }),
+  agentId: uuid('agent_id').notNull(),
   tier: memoryTierEnum('tier').notNull(),
   key: text('key').notNull(),
   value: jsonb('value').notNull(),
@@ -39,7 +40,7 @@ export const agentMemory = pgTable('agent_memory', {
 
 export const agentSkills = pgTable('agent_skills', {
   id: uuid('id').primaryKey().defaultRandom(),
-  agentId: uuid('agent_id').notNull().references(() => agents.id, { onDelete: 'cascade' }),
+  agentId: uuid('agent_id').notNull(),
   skillId: text('skill_id').notNull(),
   enabled: boolean('enabled').notNull().default(true),
   config: jsonb('config'),
@@ -48,7 +49,7 @@ export const agentSkills = pgTable('agent_skills', {
 
 export const oauthTokens = pgTable('oauth_tokens', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull(),   // TEXT to match Better Auth users.id
   provider: oauthProviderEnum('provider').notNull(),
   accessTokenEnc: text('access_token_enc').notNull(),
   refreshTokenEnc: text('refresh_token_enc'),
@@ -60,7 +61,7 @@ export const oauthTokens = pgTable('oauth_tokens', {
 
 export const approvalPolicies = pgTable('approval_policies', {
   id: uuid('id').primaryKey().defaultRandom(),
-  agentId: uuid('agent_id').notNull().references(() => agents.id, { onDelete: 'cascade' }),
+  agentId: uuid('agent_id').notNull(),
   actionType: text('action_type').notNull(),
   policyType: policyTypeEnum('policy_type').notNull().default('always_ask'),
   ruleConfig: jsonb('rule_config'),
@@ -70,7 +71,7 @@ export const approvalPolicies = pgTable('approval_policies', {
 
 export const actionLogs = pgTable('action_logs', {
   id: uuid('id').primaryKey().defaultRandom(),
-  agentId: uuid('agent_id').notNull().references(() => agents.id, { onDelete: 'cascade' }),
+  agentId: uuid('agent_id').notNull(),
   toolName: text('tool_name').notNull(),
   toolArgs: jsonb('tool_args'),
   result: jsonb('result'),
