@@ -1,28 +1,22 @@
 import { betterAuth } from 'better-auth'
-import { drizzleAdapter } from '@better-auth/drizzle-adapter'
-import { db } from '@/lib/db'
-import * as schema from '@/lib/db/schema'
 
-const appUrl = process.env.BETTER_AUTH_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+// Derive the base URL — in production this must exactly match what the browser sees
+const productionURL = 'https://autonomous-agent-platform-nine.vercel.app'
+const appUrl = process.env.BETTER_AUTH_URL
+  ?? process.env.NEXT_PUBLIC_APP_URL
+  ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
+  ?? productionURL
 
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET ?? process.env.ENCRYPTION_SECRET!,
   baseURL: appUrl,
   trustedOrigins: [
-    appUrl,
+    productionURL,
     'http://localhost:3000',
-    'https://autonomous-agent-platform-nine.vercel.app',
-    'https://autonomous-agent-platform.vercel.app',
+    'http://localhost:3001',
+    // Also trust any Vercel preview URL for this project
+    ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
   ],
-  database: drizzleAdapter(db, {
-    provider: 'pg',
-    schema: {
-      user: schema.users,
-      session: schema.sessions,
-      account: schema.accounts,
-      verification: schema.verifications,
-    },
-  }),
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
